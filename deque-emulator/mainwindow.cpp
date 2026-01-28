@@ -35,6 +35,10 @@ static std::deque<std::string> cakes{
     "Чёрный лес"
 };
 
+static const auto compare_ci = [](const std::string& l, const std::string& r) {
+    return QString::compare(QString::fromStdString(l), QString::fromStdString(r), Qt::CaseInsensitive) < 0;
+    };
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow) {
@@ -230,28 +234,6 @@ void MainWindow::SetRandomGen(const std::mt19937& random_gen) {
     random_gen_ = random_gen;
 }
 
-static bool LessIgnoreCase(const std::string& a, const std::string& b) {
-    auto it1 = a.begin();
-    auto it2 = b.begin();
-
-    for (; it1 != a.end() && it2 != b.end(); ++it1, ++it2) {
-        const unsigned char ca = static_cast<unsigned char>(*it1);
-        const unsigned char cb = static_cast<unsigned char>(*it2);
-
-        const int la = std::tolower(ca);
-        const int lb = std::tolower(cb);
-
-        if (la < lb) return true;
-        if (la > lb) return false;
-    }
-
-    if (a.size() != b.size()) {
-        return a.size() < b.size();
-    }
-
-    return a < b;
-}
-
 void MainWindow::on_btn_resize_clicked() {
     bool ok = false;
     int new_size = ui->txt_size->text().toInt(&ok);
@@ -306,7 +288,7 @@ void MainWindow::on_btn_merge_sort_clicked() {
 }
 
 void MainWindow::on_btn_merge_sOrT_clicked() {
-    deque_model_.items = MergeSort(deque_model_.items, LessIgnoreCase);
+    deque_model_.items = MergeSort(deque_model_.items, compare_ci);
     deque_model_.iterator = deque_model_.items.begin();
     ApplyModel();
 }
